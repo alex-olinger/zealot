@@ -6,6 +6,7 @@
 - If something goes sideways, stop and re-plan — don't keep pushing
 - Write a plan to `todo/` as a new aptly-named `.md` file (e.g. `todo/player-movement.md`) with checkable items; check in before starting implementation
 - Each major feature or phase gets its own file — do not pile everything into a single doc
+- Refer to `todo/INDEX.md` for the directory structure
 
 ## Task Tracking
 
