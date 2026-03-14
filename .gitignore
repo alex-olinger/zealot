@@ -41,8 +41,6 @@ crashlytics-build.properties
 # Package Manager cache
 [Pp]ackages/[Cc]ache/
 
-# Claude Code
-.claude/
 
 # Shell crash dumps
 *.stackdump
