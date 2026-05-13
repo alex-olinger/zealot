@@ -8,11 +8,13 @@ on:
 jobs:
   generate-changelog:
     name: Generate Promotion Changelog
-    # Only runs when a testing → main promotion PR is first opened
+    # Runs whenever a dev → main promotion PR is opened, updated, or reopened
     if: >
       github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.ref == 'testing' &&
-      github.event.action == 'opened'
+      github.event.pull_request.head.ref == 'dev' &&
+      (github.event.action == 'opened' ||
+       github.event.action == 'synchronize' ||
+       github.event.action == 'reopened')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write  # Required to update the PR body
@@ -25,12 +27,12 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # Find the merge date of the most recent testing → main promotion PR
+          # Find the merge date of the most recent dev → main promotion PR
           # ISO 8601 dates sort lexicographically so string comparison works
           LAST_PROMOTION_DATE=$(gh pr list \
             --repo "$REPO" \
             --base main \
-            --head testing \
+            --head dev \
             --state merged \
             --json mergedAt \
             --jq '.[0].mergedAt // empty' \
@@ -43,10 +45,10 @@ jobs:
 
           echo "Last promotion date: $LAST_PROMOTION_DATE"
 
-          # Fetch all PRs merged into testing since the last promotion (up to 200)
+          # Fetch all PRs merged into dev since the last promotion (up to 200)
           MERGED_PRS=$(gh pr list \
             --repo "$REPO" \
-            --base testing \
+            --base dev \
             --state merged \
             --json number,title,mergedAt \
             --jq "[.[] | select(.mergedAt > \"$LAST_PROMOTION_DATE\")]" \
@@ -56,7 +58,7 @@ jobs:
           echo "$MERGED_PRS"
 
           # Build the changelog body grouped by conventional commit type
-          BODY="## Summary\n\nPromotion of \`testing\` into \`main\`.\n"
+          BODY="## Summary\n\n- Promotion of \`dev\` into \`main\`.\n"
 
           # Map of type prefix → display label (order determines section order in output)
           declare -A LABELS=(
